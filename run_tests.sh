@@ -13,6 +13,10 @@ CYAN='\033[0;36m'
 RED='\033[0;31m'
 NC='\033[0m'
 
+# chmod +x run_tests.sh
+# ./run_tests.sh
+
+
 # --- SEÇÃO 0: AMBIENTE (Copia os dados daqui para o relatório) ---
 echo -e "${CYAN}=== 0. AMBIENTE DE EXECUÇÃO (Para o Relatório) ===${NC}"
 echo "--------------------------------------------------------"
