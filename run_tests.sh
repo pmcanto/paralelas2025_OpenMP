@@ -46,7 +46,7 @@ if [ ! -f "./analyzer_seq" ]; then
     exit 1
 fi
 
-# --- SEÇÃO 2.1: VERIFICAÇÃO DE CORRETUDE (NOVO) ---
+# --- SEÇÃO 2.1: VERIFICAÇÃO DE CORRETUDE ---
 echo -e "\n${CYAN}=== 2.1 VERIFICAÇÃO DE CORRETUDE (Para o Print do Relatório) ===${NC}"
 echo "Preparando teste com log distribuído..."
 cp $LOG_DIST $LOG_TARGET
@@ -59,9 +59,9 @@ echo "$ diff -s results.csv $GAB_DIST"
 diff -s results.csv $GAB_DIST
 
 if [ $? -eq 0 ]; then
-    echo -e "${GREEN}>> SUCESSO: A saída é idêntica ao gabarito! Pode tirar o print.${NC}"
+    echo -e "${GREEN}>> SUCESSO: A saída é idêntica ao gabarito!${NC}"
 else
-    echo -e "${RED}>> FALHA: Os arquivos são diferentes. Verifique sua ordenação no hash_table.c.${NC}"
+    echo -e "${RED}>> FALHA: Os arquivos são diferentes.${NC}"
     exit 1
 fi
 
@@ -127,6 +127,15 @@ if diff -q results.csv $GAB_CONC >/dev/null; then
 else
     echo -e "${RED}            [ERRO] Diff falhou!${NC}"
 fi
+
+# --- SEÇÃO 5: TOP 10 (NOVO) ---
+echo -e "\n${CYAN}=== 5. RESULTADOS DA APLICAÇÃO (TOP 10 HOTSPOTS) ===${NC}"
+echo "Analisando $GAB_CONC para encontrar os conteúdos mais acessados..."
+echo "----------------------------------------------------------------"
+echo "HITS,URL"
+# Comando mágico: ordena pelo 2º campo (numérico reverso) e pega as 10 primeiras linhas
+sort -t, -k2,2nr $GAB_CONC | head -n 10
+echo "----------------------------------------------------------------"
 
 echo -e "\n${CYAN}=== FIM DOS TESTES ===${NC}"
 rm $LOG_TARGET
