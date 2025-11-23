@@ -13,7 +13,7 @@ CYAN='\033[0;36m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-# --- NOVA SEÇÃO: DETALHES DA MÁQUINA ---
+# --- SEÇÃO 0: AMBIENTE (Copia os dados daqui para o relatório) ---
 echo -e "${CYAN}=== 0. AMBIENTE DE EXECUÇÃO (Para o Relatório) ===${NC}"
 echo "--------------------------------------------------------"
 echo -n "1. SO:            " && cat /etc/os-release | grep "PRETTY_NAME" | cut -d'"' -f2
@@ -46,16 +46,30 @@ if [ ! -f "./analyzer_seq" ]; then
     exit 1
 fi
 
-echo -e "${CYAN}=== 3. TESTE DE ESCALABILIDADE (LOG DISTRIBUÍDO) ===${NC}"
+# --- SEÇÃO 2.1: VERIFICAÇÃO DE CORRETUDE (NOVO) ---
+echo -e "\n${CYAN}=== 2.1 VERIFICAÇÃO DE CORRETUDE (Para o Print do Relatório) ===${NC}"
+echo "Preparando teste com log distribuído..."
 cp $LOG_DIST $LOG_TARGET
 
-echo -e "\n${GREEN}>> Rodando Sequencial (Baseline)...${NC}"
-./analyzer_seq | grep "Tempo"
-if diff -q results.csv $GAB_DIST >/dev/null; then
-    echo -e "${GREEN}[OK] Resultados corretos.${NC}"
+echo "Executando versão Sequencial para gerar results.csv..."
+./analyzer_seq > /dev/null
+
+echo -e "${GREEN}>> Executando comando diff:${NC}"
+echo "$ diff -s results.csv $GAB_DIST"
+diff -s results.csv $GAB_DIST
+
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}>> SUCESSO: A saída é idêntica ao gabarito! Pode tirar o print.${NC}"
 else
-    echo -e "${RED}[ERRO] Diff falhou no Sequencial${NC}"
+    echo -e "${RED}>> FALHA: Os arquivos são diferentes. Verifique sua ordenação no hash_table.c.${NC}"
+    exit 1
 fi
+
+echo -e "\n${CYAN}=== 3. TESTE DE ESCALABILIDADE (LOG DISTRIBUÍDO) ===${NC}"
+# (Nota: o log já foi copiado na etapa anterior)
+
+echo -e "${GREEN}>> Rodando Sequencial (Baseline)...${NC}"
+./analyzer_seq | grep "Tempo"
 
 THREADS_LIST=(1 2 4 8)
 
